@@ -1,0 +1,22 @@
+{
+  "name": "tp1",
+  "version": "1.0.0",
+  "description": "First tutorial",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "mocha --timeout 5000 tests-mocha/**/*"
+  },
+  "author": "Thomas & Youssef",
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "@types/chai": "^4.2.21",
+    "@types/mocha": "^9.0.0",
+    "chai": "^4.3.4",
+    "mocha": "^9.2.2"
+  },
+  "dependencies": {
+    "lodash": "^4.17.21",
+    "node-fetch": "^3.2.9"
+  }
+}
