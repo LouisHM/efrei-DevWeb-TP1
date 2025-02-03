@@ -12,4 +12,8 @@ describe('ex. 2', function () {
         it('should apply function for all values', function () {
             expect(map([1, 2, 3, 4, 5, 9, 10], item => item * 2)).to.deep.eq([2, 4,6,8,10,18,20])
         })
+
+        it('should return the same array', function () {
+            expect(map([1, 2, 3], item => item)).to.deep.eq([1, 2, 3]);
+        })
 })
