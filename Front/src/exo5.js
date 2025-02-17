@@ -15,7 +15,7 @@ export function getFirstProject(uniqueProjects) {
 }
 
 export function getUniqueUsernames(contributions) {
-    return [...new Set(contributions.map((c) => c.username))];
+    return [...new Set(contributions.map((c) => c.realName))];
 }
 
 export function createUniqueContributionsMap(contributions) {
@@ -31,7 +31,7 @@ export function calculateAverageNameLength(uniqueContribs) {
         (acc, c) => acc + (c.realName || '').length,
         0
     );
-    return uniqueContribs.length > 0 ? sumLengths / uniqueContribs.length : 0;
+    return sumLengths / uniqueContribs.length;
 }
 
 export function getContributionsByUser(contributions) {
@@ -96,6 +96,7 @@ export function analyzeContributions(contributions) {
 
     const uniqueObjByUsername = createUniqueContributionsMap(contributions);
     const uniqueContribs = Object.values(uniqueObjByUsername);
+    console.log("unique Contribs ",uniqueContribs)
     const avgNameLength = calculateAverageNameLength(uniqueContribs);
 
     const contributionsByUser = getContributionsByUser(contributions);
