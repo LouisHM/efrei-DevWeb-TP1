@@ -14,45 +14,58 @@ export function getFirstProject(uniqueProjects) {
     return uniqueProjects[0] || null;
 }
 
-export function getUniqueUsernames(contributions) {
+export function getUniqueUserRealName(contributions) {
     return [...new Set(contributions.map((c) => c.realName))];
 }
 
-export function createUniqueContributionsMap(contributions) {
-    const uniqueObjByUsername = {};
+export function createUniqueContributions(contributions) {
+    const uniqueContribByRealName = {};
     contributions.forEach((c) => {
-        uniqueObjByUsername[c.username] = c;
+        if (c && c.realName) {
+            uniqueContribByRealName[c.realName] = c;
+        }
     });
-    return uniqueObjByUsername;
+    return uniqueContribByRealName;
 }
 
 export function calculateAverageNameLength(uniqueContribs) {
-    const sumLengths = uniqueContribs.reduce(
-        (acc, c) => acc + (c.realName || '').length,
-        0
-    );
-    return sumLengths / uniqueContribs.length;
+    if (!Array.isArray(uniqueContribs) || !uniqueContribs.length) return 0;
+    
+    let totalLength = 0;
+    let validNames = 0;
+
+    for (const contrib of uniqueContribs) {
+        if (contrib?.realName) {
+            totalLength += contrib.realName.length;
+            validNames++;
+        }
+    }
+
+    return validNames ? totalLength / validNames : 0;
 }
 
 export function getContributionsByUser(contributions) {
-    const contributionsByUser = {};
+    const contributionsByRealName = {};
     contributions.forEach((c) => {
-        if (!contributionsByUser[c.username]) {
-            contributionsByUser[c.username] = new Set();
+        if (c && c.realName) {
+            if (!contributionsByRealName[c.realName]) {
+                contributionsByRealName[c.realName] = new Array();
+            }
+            if (c.projectName) {
+                contributionsByRealName[c.realName].push(c.projectName);
+            }
         }
-        contributionsByUser[c.username].add(c.projectName);
     });
-    return contributionsByUser;
+    return contributionsByRealName;
 }
 
-export function findMostActiveUser(contributionsByUser) {
+export function findMostActiveUser(contributionsByRealName) {
     let mostActiveUser = null;
     let maxProjectsCount = -1;
-
-    for (const [username, projectsSet] of Object.entries(contributionsByUser)) {
-        if (projectsSet.size > maxProjectsCount) {
-            mostActiveUser = username;
-            maxProjectsCount = projectsSet.size;
+    for (const [realName, projects] of Object.entries(contributionsByRealName)) {
+        if (projects.length > maxProjectsCount) {
+            mostActiveUser = realName;
+            maxProjectsCount = projects.length;
         }
     }
     return mostActiveUser;
@@ -61,19 +74,21 @@ export function findMostActiveUser(contributionsByUser) {
 export function getContributorsByProject(contributions) {
     const contributorsByProject = {};
     contributions.forEach((c) => {
-        if (!contributorsByProject[c.projectName]) {
-            contributorsByProject[c.projectName] = new Set();
+        if (c && c.projectName && c.realName) {
+            if (!contributorsByProject[c.projectName]) {
+                contributorsByProject[c.projectName] = new Set();
+            }
+            contributorsByProject[c.projectName].add(c.realName);
         }
-        contributorsByProject[c.projectName].add(c.username);
     });
     return contributorsByProject;
 }
 
 export function getTop10Projects(contributorsByProject) {
     const projectCountArray = Object.entries(contributorsByProject).map(
-        ([p, userSet]) => ({
+        ([p, contributors]) => ({
             project: p,
-            count: userSet.size,
+            count: contributors.size,
         })
     );
 
@@ -82,7 +97,7 @@ export function getTop10Projects(contributorsByProject) {
             b.count - a.count || a.project.localeCompare(b.project, 'fr', { sensitivity: 'base' })
     );
 
-    return projectCountArray.slice(0, 10);
+    return projectCountArray.slice(0, 10).map((p) => p.project);
 }
 
 export function analyzeContributions(contributions) {
@@ -90,20 +105,16 @@ export function analyzeContributions(contributions) {
     const uniqueProjects = getUniqueAndSortedProjects(allProjects);
     const firstProject = getFirstProject(uniqueProjects);
 
+    const uniqueRealName = getUniqueUserRealName(contributions);
+    const nbUniqueContributors = uniqueRealName.length;
 
-    const uniqueUsernames = getUniqueUsernames(contributions);
-    const nbUniqueContributors = uniqueUsernames.length;
-
-    const uniqueObjByUsername = createUniqueContributionsMap(contributions);
-    const uniqueContribs = Object.values(uniqueObjByUsername);
-    console.log("unique Contribs ",uniqueContribs)
+    const uniqueObjByRealName = createUniqueContributions(contributions);
+    const uniqueContribs = Object.values(uniqueObjByRealName);
     const avgNameLength = calculateAverageNameLength(uniqueContribs);
 
     const contributionsByUser = getContributionsByUser(contributions);
     const mostActiveUser = findMostActiveUser(contributionsByUser);
-    const mostActiveContributorName = mostActiveUser
-        ? uniqueObjByUsername[mostActiveUser].realName
-        : null;
+    const mostActiveContributorName = mostActiveUser;
 
     const contributorsByProject = getContributorsByProject(contributions);
     const top10Projects = getTop10Projects(contributorsByProject);
@@ -116,5 +127,3 @@ export function analyzeContributions(contributions) {
         top10Projects,
     };
 }
-
-

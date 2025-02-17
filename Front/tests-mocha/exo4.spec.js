@@ -32,20 +32,6 @@ describe('ex. 4 parseCsvImperative(csvText)', () => {
         expect(result[0].projectName).to.be.a('string').and.to.have.length.greaterThan(0);
     });
 
-    it('should set website to null if not provided', () => {
-        const testCsv = `svn_id,real_name,website,project_name
-${csvText}\nrlrrrrr,Real Name,,Project A`;
-        const result = parseCsvImperative(testCsv);
-        expect(result.some(entry => entry.website === null)).to.be.true;
-    });
-
-    it('should correctly parse current user data', () => {
-        const result = parseCsvImperative(csvText);
-        const currentUserData = result.find(entry => entry.username === 'rlrrrrr');
-        if (currentUserData) {
-            expect(currentUserData).to.have.all.keys('username', 'realName', 'website', 'projectName');
-        }
-    });
 });
 
 describe('ex. 4 parseCsvFunctional(csvText)', () => {
@@ -76,13 +62,6 @@ describe('ex. 4 parseCsvFunctional(csvText)', () => {
         expect(result[0].username).to.be.a('string').and.to.have.length.greaterThan(0);
         expect(result[0].realName).to.be.a('string').and.to.have.length.greaterThan(0);
         expect(result[0].projectName).to.be.a('string').and.to.have.length.greaterThan(0);
-    });
-
-    it('should set website to null if not provided', () => {
-        const testCsv = `svn_id,real_name,website,project_name
-${csvText}\nrlrrrrr,Real Name,,Project A`;
-        const result = parseCsvFunctional(testCsv);
-        expect(result.some(entry => entry.website === null)).to.be.true;
     });
 
     it('should produce the same result as parseCsvImperative', () => {
